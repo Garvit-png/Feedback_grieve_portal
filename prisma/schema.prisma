@@ -3,14 +3,21 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-model App{
-  id  String   @id @default(auto()) @map("_id") @db.ObjectId
-  name String 
-  description String?
-  hashid String
+model Submission {
+  id         String   @id @default(uuid())
+  type       String   // "GRIEVANCE" or "FEEDBACK"
+  message    String
+  status     String   @default("PENDING") // "PENDING", "REVIEWING", "RESOLVED"
+  adminReply String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
+model NotificationConfig {
+  id    String @id @default(uuid())
+  email String @unique
+}
