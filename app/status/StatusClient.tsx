@@ -7,6 +7,7 @@ type Submission = {
   id: string;
   type: string;
   message: string;
+  photo?: string | null;
   status: string;
   adminReply: string | null;
   createdAt: Date;
@@ -86,6 +87,16 @@ export default function StatusClient({ initialSubmissions }: { initialSubmission
                     {sub.message}
                   </p>
                 </div>
+
+                {sub.photo && (
+                  <div className="border border-neutral-800 bg-neutral-950">
+                    <img
+                      src={sub.photo}
+                      alt="Submission attachment"
+                      className="w-full h-auto max-h-96 object-contain"
+                    />
+                  </div>
+                )}
 
                 {sub.adminReply && (
                   <div className="border border-neutral-800 border-l-4 border-l-pink-500 p-4 bg-black">

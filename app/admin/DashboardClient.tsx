@@ -8,6 +8,7 @@ type Submission = {
   id: string;
   type: string;
   message: string;
+  photo?: string | null;
   status: string;
   adminReply: string | null;
   createdAt: Date;
@@ -122,6 +123,16 @@ export default function DashboardClient({ initialSubmissions }: { initialSubmiss
                     {sub.message}
                   </p>
                 </div>
+
+                {sub.photo && (
+                  <div className="mb-6 border border-neutral-800 bg-neutral-950">
+                    <img
+                      src={sub.photo}
+                      alt="Submission attachment"
+                      className="w-full h-auto max-h-96 object-contain"
+                    />
+                  </div>
+                )}
 
                 {sub.adminReply && (
                   <div className="mb-6 border-l-2 border-pink-500 pl-4">

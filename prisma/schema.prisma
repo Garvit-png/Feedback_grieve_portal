@@ -11,6 +11,7 @@ model Submission {
   id         String   @id @default(uuid())
   type       String   // "GRIEVANCE" or "FEEDBACK"
   message    String
+  photo      String?  // Base64 encoded image data
   status     String   @default("PENDING") // "PENDING", "REVIEWING", "RESOLVED"
   adminReply String?
   createdAt  DateTime @default(now())

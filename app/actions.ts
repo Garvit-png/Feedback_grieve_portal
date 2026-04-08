@@ -12,6 +12,7 @@ import { sendNotificationEmail } from "@/lib/email";
 export async function createSubmission(formData: FormData) {
   const message = formData.get("message") as string;
   const type = formData.get("type") as string;
+  const photoFile = formData.get("photo") as File | null;
 
   if (!message || message.trim() === "") {
     return { error: "Message is required." };
@@ -20,11 +21,24 @@ export async function createSubmission(formData: FormData) {
     return { error: "Invalid submission type." };
   }
 
+  let photoBase64: string | undefined;
+  if (photoFile) {
+    try {
+      const buffer = await photoFile.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      photoBase64 = `data:${photoFile.type};base64,${base64}`;
+    } catch (error) {
+      console.error("Error processing photo:", error);
+      return { error: "Failed to process photo." };
+    }
+  }
+
   try {
     const submission = await prisma.submission.create({
       data: {
         message,
         type,
+        photo: photoBase64,
       },
     });
 
@@ -46,6 +60,7 @@ export async function getPublicSubmissions() {
         type: true,
         status: true,
         message: true,
+        photo: true,
         adminReply: true,
         createdAt: true,
       },

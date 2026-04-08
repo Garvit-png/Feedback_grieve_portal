@@ -12,8 +12,26 @@ function SubmitForm() {
   
   const [type, setType] = useState(searchParams.get("type") === "GRIEVANCE" ? "GRIEVANCE" : "FEEDBACK");
   const [message, setMessage] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Photo must be less than 5MB");
+        return;
+      }
+      setPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +40,9 @@ function SubmitForm() {
       const formData = new FormData();
       formData.append("type", type);
       formData.append("message", message);
+      if (photo) {
+        formData.append("photo", photo);
+      }
       
       const res = await createSubmission(formData);
       if (res.error) setError(res.error);
@@ -72,6 +93,37 @@ function SubmitForm() {
             placeholder="TYPE HERE..."
             className="w-full h-48 bg-neutral-900 border border-neutral-800 p-4 text-white focus:outline-none focus:border-pink-500 resize-none font-mono text-sm placeholder-neutral-600 transition-colors"
           />
+
+          <div className="space-y-3">
+            <label className="block text-sm text-neutral-400 uppercase tracking-widest">
+              Upload Photo (Optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              className="w-full bg-neutral-900 border border-neutral-800 p-3 text-white text-sm file:bg-pink-500 file:text-black file:border-0 file:py-2 file:px-4 file:rounded-none file:font-bold file:cursor-pointer hover:border-pink-500 transition-colors"
+            />
+            {photoPreview && (
+              <div className="relative w-full border border-neutral-800 bg-neutral-950 rounded-none overflow-hidden">
+                <img
+                  src={photoPreview}
+                  alt="Preview"
+                  className="w-full h-auto max-h-64 object-contain"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhoto(null);
+                    setPhotoPreview(null);
+                  }}
+                  className="absolute top-2 right-2 bg-pink-500 text-black px-3 py-1 text-xs font-bold uppercase hover:bg-pink-400 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             disabled={isPending || !message.trim()}
